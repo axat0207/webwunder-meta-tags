@@ -11,7 +11,7 @@ const defaultData = {
 };
 
 // Character limit
-const charLimit = 140;
+const charLimit = 145;
 
 export default function MetaTagsEditor() {
   const [metaData, setMetaData] = useState(defaultData);
