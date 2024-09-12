@@ -1,93 +1,122 @@
 'use client'
-import { useState } from "react";
+import { useState, useEffect } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
-export default function MetaTagsPage() {
-  // States for the meta tag contents
-  const [metaTitle, setMetaTitle] = useState("WebWunder - Websites That Deliver More Sales & Lower Costs");
-  const [metaDescription, setMetaDescription] = useState("Boost sales & cut costs with WebWunder's managed websites. Book a call today!");
-  const [metaKeywords, setMetaKeywords] = useState("WebWunder, subscription website, web design, boost revenue, reduce costs, website management, SEO, design services, affordable web design, business website design");
-  const [editMode, setEditMode] = useState(false);
+// Default Meta Tag Data
+const defaultData = {
+  title: "WebWunder - Websites That Deliver More Sales & Lower Costs",
+  metaDescription: "Boost sales & cut costs with WebWunder's managed websites. Book a call today!",
+  metaKeywords: "WebWunder, subscription website, web design, boost revenue, reduce costs, website management, SEO, design services, affordable web design, business website design",
+  ogDescription: "Turn your website into a revenue driver with WebWunder’s expert, subscription-based design.",
+};
 
-  const handleCopy = (content: string) => {
-    navigator.clipboard.writeText(content);
-    alert("Copied to clipboard!");
-  };
+// Character limit
+const charLimit = 140;
 
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (e.target.value.length <= 140) {
-      setMetaDescription(e.target.value);
+export default function MetaTagsEditor() {
+  const [metaData, setMetaData] = useState(defaultData);
+
+  useEffect(() => {
+    const savedData = localStorage.getItem('metaData');
+    if (savedData) {
+      setMetaData(JSON.parse(savedData));
     }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('metaData', JSON.stringify(metaData));
+  }, [metaData]);
+
+  const handleInputChange = (e:any) => {
+    const { name, value } = e.target;
+    setMetaData({ ...metaData, [name]: value });
   };
+
+  const copyToClipboard = (text:any) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard!');
+  };
+
+  const checkLimit = (text:any) => text.length > charLimit ? 'text-red-500' : 'text-green-500';
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold mb-6 text-center text-purple-600">SEO Meta Tags Information</h1>
+    <div className="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+      <Toaster />
+      <h1 className="text-3xl font-bold mb-6" style={{ color: '#8076a3' }}>Meta Tags Information</h1>
+      
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold" style={{ color: '#7c677f' }}>Page Title</h2>
+        <input
+          type="text"
+          name="title"
+          value={metaData.title}
+          onChange={handleInputChange}
+          className="w-full p-2 mt-2 border rounded"
+        />
+        <button 
+          className="bg-purple-500 text-white px-4 py-2 mt-2 rounded"
+          onClick={() => copyToClipboard(metaData.title)}
+        >
+          Copy
+        </button>
+      </div>
 
-        {/* Page Title Section */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-700">Page Title</h2>
-          {editMode ? (
-            <textarea
-              value={metaTitle}
-              onChange={(e) => setMetaTitle(e.target.value)}
-              className="w-full mt-2 p-2 border border-gray-300 rounded-md"
-            />
-          ) : (
-            <p className="mt-2 text-gray-600">{metaTitle}</p>
-          )}
-          <div className="mt-2 flex space-x-4">
-            <button onClick={() => handleCopy(metaTitle)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-              Copy
-            </button>
-            <button onClick={() => setEditMode(!editMode)} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-              {editMode ? "Save" : "Edit"}
-            </button>
-          </div>
-        </div>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold" style={{ color: '#7c677f' }}>Meta Description</h2>
+        <textarea
+          maxLength={145}
+          name="metaDescription"
+          value={metaData.metaDescription}
+          onChange={handleInputChange}
+          className="w-full p-2 mt-2 border rounded"
+        />
+        <p className={checkLimit(metaData.metaDescription)}>
+          {metaData.metaDescription.length}/{charLimit}
+        </p>
+        <button 
+          className="bg-purple-500 text-white px-4 py-2 mt-2 rounded"
+          onClick={() => copyToClipboard(metaData.metaDescription)}
+        >
+          Copy
+        </button>
+      </div>
 
-        {/* Meta Description Section */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-700">Meta Description (Max 140 Characters)</h2>
-          {editMode ? (
-            <>
-              <textarea
-                value={metaDescription}
-                onChange={handleDescriptionChange}
-                className="w-full mt-2 p-2 border border-gray-300 rounded-md"
-              />
-              <p className={`mt-2 text-sm ${metaDescription.length <= 140 ? "text-green-600" : "text-red-600"}`}>
-                {metaDescription.length} / 140 characters
-              </p>
-            </>
-          ) : (
-            <p className="mt-2 text-gray-600">{metaDescription}</p>
-          )}
-          <div className="mt-2 flex space-x-4">
-            <button onClick={() => handleCopy(metaDescription)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-              Copy
-            </button>
-          </div>
-        </div>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold" style={{ color: '#7c677f' }}>Meta Keywords</h2>
+        <input
+          type="text"
+          name="metaKeywords"
+          value={metaData.metaKeywords}
+          onChange={handleInputChange}
+          className="w-full p-2 mt-2 border rounded"
+        />
+        <button 
+          className="bg-purple-500 text-white px-4 py-2 mt-2 rounded"
+          onClick={() => copyToClipboard(metaData.metaKeywords)}
+        >
+          Copy
+        </button>
+      </div>
 
-        {/* Meta Keywords Section */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-700">Meta Keywords</h2>
-          {editMode ? (
-            <textarea
-              value={metaKeywords}
-              onChange={(e) => setMetaKeywords(e.target.value)}
-              className="w-full mt-2 p-2 border border-gray-300 rounded-md"
-            />
-          ) : (
-            <p className="mt-2 text-gray-600">{metaKeywords}</p>
-          )}
-          <div className="mt-2 flex space-x-4">
-            <button onClick={() => handleCopy(metaKeywords)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-              Copy
-            </button>
-          </div>
-        </div>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold" style={{ color: '#7c677f' }}>Open Graph Description</h2>
+        <textarea
+                    maxLength={145}
+
+          name="ogDescription"
+          value={metaData.ogDescription}
+          onChange={handleInputChange}
+          className="w-full p-2 mt-2 border rounded"
+        />
+        <p className={checkLimit(metaData.ogDescription)}>
+          {metaData.ogDescription.length}/{charLimit}
+        </p>
+        <button 
+          className="bg-purple-500 text-white px-4 py-2 mt-2 rounded"
+          onClick={() => copyToClipboard(metaData.ogDescription)}
+        >
+          Copy
+        </button>
       </div>
     </div>
   );
