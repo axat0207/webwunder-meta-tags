@@ -27,17 +27,18 @@ export default function MetaTagsEditor() {
     localStorage.setItem('metaData', JSON.stringify(metaData));
   }, [metaData]);
 
-  const handleInputChange = (e:any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setMetaData({ ...metaData, [name]: value });
   };
+  
 
-  const copyToClipboard = (text:any) => {
+  const copyToClipboard = (text:string) => {
     navigator.clipboard.writeText(text);
     toast.success('Copied to clipboard!');
   };
 
-  const checkLimit = (text:any) => text.length > charLimit ? 'text-red-500' : 'text-green-500';
+  const checkLimit = (text:string) => text.length > charLimit ? 'text-red-500' : 'text-green-500';
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
